@@ -21,17 +21,21 @@ def downloadDocxFile():
 	quotes_ = soup.find_all('small', class_='la_f_block la_element_footer_date')
 
 	#Filters
-	# dateOfUpdate = re.findall(r'[А-я]+ \d+ [А-я]+ \d+', str(quotes_[1]))[0]
+	dateOfUpdate = re.findall(r'[А-я]+ \d+ [А-я]+ \d+', str(quotes_[1]))[0]
 	address = re.findall(r'(?<=["\'])[^"\']+', str(quotes[0]))[2]
-	# print(dateOfUpdate)
-	#Download docx file
-	wget.download((f'http://www.bobruisk.belstu.by{address}/schedule.docx'))
 
+	if int(re.findall(r'\d\d', dateOfUpdate)[0]) == int(datetime.now().day):
+		#Download docx file
+		wget.download((f'http://www.bobruisk.belstu.by{address}/schedule.docx'))
+	else:
+		return 0
 
 def findReplacement():
+	global date_
 	wordDoc = Document("Zamena_SAYT.docx")
-	print(''.join([i for i in wordDoc.paragraphs[0].text][26:51]))
-	#19 октября 2022 (среда)
+	date_ = (
+		re.findall(r'\d+ [а-я]+ \d+', wordDoc.paragraphs[0].text)[0],\
+		re.findall(r'\(([а-я]+)\)', wordDoc.paragraphs[0].text)[0])
 	table_size_row = len(wordDoc.tables[0].rows)
 	table_size_col = len(wordDoc.tables[0].columns)
 	report, dataframe = {}, []
@@ -39,8 +43,6 @@ def findReplacement():
 	# all lines
 	for i in range(1,table_size_row):
 	    dataframe.append(wordDoc.tables[0].rows[i].cells[0].text)
-
-	# print(''.join(dataframe))
 
 	# iterate over rows
 	for i in dataframe:
@@ -50,10 +52,6 @@ def findReplacement():
 			# end of replacement
 			pattern = dataframe.index(re.findall(r'[А-Я]+ \d+', \
 				''.join(dataframe[idGroup+1:]))[0])
-			# pattern_2 = dataframe.index(re.findall(r'[А-Я]+ \d+[а-я]', \
-			# 	''.join(dataframe[idGroup+1:]))[0])
-			# patterns = (pattern_1, pattern_2)
-			# print(patterns)
 
 			# span indices
 			deck = []
@@ -67,7 +65,7 @@ def findReplacement():
 					out.append(wordDoc.tables[0].rows[index+1].cells[m].text)
 				report[wordDoc.tables[0].rows[index+1].cells[1].text] = out[c]#(out[c], out[c+1])
 				c += 2
-			print((f'\n{report}'))
+			# print((f'\n{report}'))
 			return report
 			break
 
@@ -87,14 +85,20 @@ def createNewSchedule(zamena, old_sc):
 	return new_schedule
 
 
-if __name__ == '__main__':
-	# downloadDocxFile()
-	zamena = findReplacement()
-	# destruction()
+def getResult(item):
+	result = ""
+	for i, j in item.items():
+		result += f'{i} | {j}\n'
+	return result[:len(result)-1]
 
-	# date_ = date.today()
-	# print(datetime.strptime('2022-декабрь-2', '%Y%B%d'))
-	# print(datetime.isoweekday(datetime.today()))
-	print(giveThisDay('четверг'))
-	print(createNewSchedule(zamena, giveThisDay('четверг')))
-	# print(zamena)
+
+def main():
+	if downloadDocxFile() == False: return 'Замен нет'
+	else:
+		zamena = findReplacement()
+		destruction()
+		return getResult(createNewSchedule(zamena, giveThisDay(date_[1])))
+
+
+if __name__ == '__main__':
+	main()
