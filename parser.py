@@ -30,7 +30,7 @@ def downloadDocxFile():
 
 def findReplacement():
 	wordDoc = Document("Zamena_SAYT.docx")
-	print(''.join([i for i in wordDoc.paragraphs[0].text][26:50]))
+	print(''.join([i for i in wordDoc.paragraphs[0].text][26:51]))
 	#19 октября 2022 (среда)
 	table_size_row = len(wordDoc.tables[0].rows)
 	table_size_col = len(wordDoc.tables[0].columns)
@@ -65,7 +65,7 @@ def findReplacement():
 			for index in deck:
 				for m in range(3, table_size_col, 2):
 					out.append(wordDoc.tables[0].rows[index+1].cells[m].text)
-				report[wordDoc.tables[0].rows[index+1].cells[1].text] = (out[c], out[c+1])
+				report[wordDoc.tables[0].rows[index+1].cells[1].text] = out[c]#(out[c], out[c+1])
 				c += 2
 			print((f'\n{report}'))
 			return report
@@ -75,13 +75,26 @@ def findReplacement():
 def destruction(): remove('Zamena_SAYT.docx')
 
 
+def createNewSchedule(zamena, old_sc):
+	new_schedule = old_sc.copy()
+	for key in zamena.keys():
+		if key == re.findall(r'\d/\d', key):
+			new_schedule[key] = zamena[key]
+		else:
+			for i in range(1,3):
+				new_schedule[f'{key}/{str(i)}'] = zamena[key]
+
+	return new_schedule
+
+
 if __name__ == '__main__':
 	# downloadDocxFile()
 	zamena = findReplacement()
 	# destruction()
 
-	date_ = date.today()
+	# date_ = date.today()
 	# print(datetime.strptime('2022-декабрь-2', '%Y%B%d'))
-	print(datetime.isoweekday(datetime.today()))
-	print(giveThisDay('Wednesday'))
+	# print(datetime.isoweekday(datetime.today()))
+	print(giveThisDay('четверг'))
+	print(createNewSchedule(zamena, giveThisDay('четверг')))
 	# print(zamena)
