@@ -1,0 +1,40 @@
+<Container>:
+    orientation: "vertical"
+
+    status:status
+    iconStatus:iconStatus
+
+    MDLabel:
+        id: status
+        text: "Status"
+        font_size: 30
+        halign: "center"
+        pos_hint: {"center_x": 0.5, "center_y": 0.9}
+
+    MDIcon:
+        id: iconStatus
+        pos_hint: {"center_x": 0.5, "center_y": 0.1}
+        font_size: 40
+        icon: "robot"
+
+    MDRoundFlatIconButton:
+        size_hint: 0.4, 0.4
+        size: 200, 200
+        text: "Connect"
+        font_size: 28
+        icon: "connection"
+        text_color: "white"
+        pos_hint:{'center_x':0.5, 'center_y':0.6}
+        on_release:
+            root.startApp()
+
+    MDRoundFlatIconButton:
+        size_hint: 0.1, 0.1
+        size: 80, 80
+        text: "Disconnect"
+        font_size: 28
+        icon: "lan-disconnect"
+        text_color: "white"
+        pos_hint:{'center_x':0.5, 'center_y':0.3}
+        on_release:
+            root.closeApp()
